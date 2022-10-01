@@ -2,3 +2,9 @@
 vue-app/.idea/
 
 vue-api/.idea/
+
+vue-api/db-data/postgres/pg_stat_tmp/db_0.stat
+
+vue-api/db-data/postgres/pg_stat_tmp/db_13757.stat
+
+vue-api/db-data/postgres/pg_stat_tmp/

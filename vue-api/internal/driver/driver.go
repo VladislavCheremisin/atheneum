@@ -19,7 +19,7 @@ const maxOpenDBConn = 5
 const maxIdleDBConn = 5
 const maxDBLifeTime = 5 * time.Minute
 
-func ConnectPosgres(dsn string) (*DB, error) {
+func ConnectPostgres(dsn string) (*DB, error) {
 	d, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err

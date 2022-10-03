@@ -10,3 +10,5 @@ vue-api/db-data/postgres/pg_stat_tmp/db_13757.stat
 vue-api/db-data/postgres/pg_stat_tmp/
 
 vue-api/db-data/postgres/
+
+vue-app/node_modules/.cache/

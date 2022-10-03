@@ -21,8 +21,8 @@
               required="true"
           ></text-input>
 
-          <input type="submit" class="btn btn-primary" value="login">
           <hr>
+          <input type="submit" class="btn btn-primary" value="login">
         </form-tag>
       </div>
     </div>
@@ -31,6 +31,10 @@
 <script>
 import TextInput from "./forms/TextInput";
 import FormTag from "./forms/FormTag";
+import { store } from './store.js';
+import router from "./../router/index.js";
+import notie from 'notie'
+
 export default {
   name: 'login',
   components: {
@@ -41,6 +45,7 @@ export default {
     return {
       email: "",
       password: "",
+      store,
     }
   },
   methods: {
@@ -59,11 +64,19 @@ export default {
 
       fetch("http://localhost:8081/users/login", requestOptions)
           .then((response) => response.json())
-          .then((data)=> {
-            if (data.error) {
-              console.log("Error", data.message);
+          .then((response)=> {
+            if (response.error) {
+              console.log("Error", response.message);
+              notie.alert({
+                type: 'error',
+                text: response.message,
+              //  stay: true,
+              //  position: 'bottom',
+              })
             } else {
-              console.log(data)
+              console.log("Token:", response.data.token.token);
+              store.token = response.data.token.token;
+              router.push("/")
             }
           })
     }

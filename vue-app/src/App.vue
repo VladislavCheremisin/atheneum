@@ -11,6 +11,7 @@
 <script>
 import HeaderGlobal from "./components/HeaderGlobal"
 import FooterGlobal from "./components/FooterGlobal"
+import { store } from './components/store.js'
 
 
 
@@ -19,6 +20,11 @@ name:'App',
   components: {
     HeaderGlobal,
     FooterGlobal,
+  },
+  data() {
+    return {
+      store
+    }
   }
 }
 </script>

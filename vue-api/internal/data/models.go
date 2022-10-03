@@ -240,7 +240,7 @@ type Token struct {
 	Expiry    time.Time `json:"expiry"`
 }
 
-func (t *Token) GetByToken(plaiText string) (*Token, error) {
+func (t *Token) GetByToken(plainText string) (*Token, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -248,16 +248,18 @@ func (t *Token) GetByToken(plaiText string) (*Token, error) {
 				from tokens where token = $1`
 
 	var token Token
-	row := db.QueryRowContext(ctx, query, plaiText)
+	row := db.QueryRowContext(ctx, query, plainText)
 	err := row.Scan(
 		&token.ID,
 		&token.UserID,
 		&token.Email,
+		&token.Token,
 		&token.TokenHash,
 		&token.CreatedAT,
 		&token.UpdatedAT,
 		&token.Expiry,
 	)
+	println()
 
 	if err != nil {
 		return nil, err
@@ -358,7 +360,7 @@ func (t *Token) Insert(token Token, u User) error {
 
 	token.Email = u.Email
 
-	stmt = `insert into tokens (user_id, email, token, token_hash, created_at, expiry)
+	stmt = `insert into tokens (user_id, email, token, token_hash, created_at, updated_at, expiry)
 			values ($1, $2, $3, $4, $5, $6, $7)`
 
 	_, err = db.ExecContext(ctx, stmt,

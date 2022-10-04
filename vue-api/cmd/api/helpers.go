@@ -27,9 +27,20 @@ func (app application) readJSON(w http.ResponseWriter, r *http.Request, data int
 }
 
 func (app application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
-	out, err := json.MarshalIndent(data, "", "\t")
-	if err != nil {
-		return nil
+	var output []byte
+
+	if app.enviroment == "development" {
+		out, err := json.MarshalIndent(data, "", "\t")
+		if err != nil {
+			return nil
+		}
+		output = out
+	} else {
+		out, err := json.Marshal(data)
+		if err != nil {
+			return nil
+		}
+		output = out
 	}
 
 	if len(headers) > 0 {
@@ -40,7 +51,7 @@ func (app application) writeJSON(w http.ResponseWriter, status int, data interfa
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_, err = w.Write(out)
+	_, err := w.Write(output)
 	if err != nil {
 		return err
 	}

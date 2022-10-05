@@ -7,7 +7,6 @@
         </h1>
       </div>
       <hr>
-
       <table class="table table-compact table-striped">
         <thead>
           <tr>

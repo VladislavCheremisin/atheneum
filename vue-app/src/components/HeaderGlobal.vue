@@ -59,7 +59,8 @@ import Security from "./security.js";
 export default {
   data() {
     return {
-      store
+      store,
+      ready: false,
     }
   },
   methods: {

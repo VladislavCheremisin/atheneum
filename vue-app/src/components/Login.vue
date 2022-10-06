@@ -47,6 +47,7 @@ export default {
       email: "",
       password: "",
       store,
+      ready: false,
     }
   },
   methods: {

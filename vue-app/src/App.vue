@@ -2,7 +2,7 @@
   <HeaderGlobal />
 
   <div>
-    <router-view />
+    <router-view @success="success" @error="error" @warning="warning" />
   </div>
   <FooterGlobal />
 
@@ -12,6 +12,7 @@
 import HeaderGlobal from "./components/HeaderGlobal"
 import FooterGlobal from "./components/FooterGlobal"
 import { store } from './components/store.js'
+import notie from 'notie'
 
 const getCookie = (name) => {
   return document.cookie.split("; ").reduce((r, v) => {
@@ -30,7 +31,8 @@ name:'App',
   },
   data() {
     return {
-      store
+      store,
+      ready: false,
     }
   },
   beforeMount() {
@@ -50,13 +52,25 @@ name:'App',
       }
     }
   },
-  mounted() {
-
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    headers.append("Authorization", "Bearer " + store.token);
-
-
+  methods: {
+    success(msg) {
+      notie.alert({
+        type: 'success',
+        text: msg,
+      })
+    },
+    error(msg) {
+      notie.alert({
+        type: 'error',
+        text: msg,
+      })
+    },
+    warning(msg) {
+      notie.alert({
+        type: 'warning',
+        text: msg,
+      })
+    }
   }
 }
 </script>

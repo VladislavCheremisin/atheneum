@@ -130,6 +130,7 @@ export default {
         last_name: this.user.last_name,
         email: this.user.email,
         password: this.user.password,
+        active: this.user.active,
       }
 
       fetch(`${process.env.VUE_APP_API_URL}/admin/users/save`, Security.requestOptions(payload))

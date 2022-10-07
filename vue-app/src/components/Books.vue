@@ -18,21 +18,25 @@
         <div class="card-group">
           <transition-group class="p-3 d-flex flex-wrap" tag="div" appear name="books">
             <div v-for="b in this.books" :key="b.id">
-              <div class="card me-2 ms-1 mb-3" style="width: 10rem;"
-                v-if="b.genre_ids.includes(currentFilter) || currentFilter === 0">
-                <img :src="`${this.imgPath}/covers/${b.slug}.jpg`" class="card-img-top"
-                     :alt="`cover for ${b.title}`">
-                <div class="card-body text-center">
-                  <h6 class="card-title">{{b.title}}</h6>
-                  <span class="book-author">  {{b.author.author_name}}</span><br>
-                  <small class="text-muted book-genre" v-for="(g, index) in b.genres" v-bind:key="g.id">
-                    <em class="me-1">{{g.genre_name}}
-                      <template v-if="index !== (b.genres.length -1)">,</template>
-                    </em>
-                  </small>
+
+                <div class="card me-2 ms-1 mb-3" style="width: 10rem;"
+                  v-if="b.genre_ids.includes(currentFilter) || currentFilter === 0">
+                  <router-link :to="`/books/${b.slug}`">
+                    <img :src="`${this.imgPath}/covers/${b.slug}.jpg`" class="card-img-top"
+                         :alt="`cover for ${b.title}`">
+                  </router-link>
+                  <div class="card-body text-center">
+                    <h6 class="card-title">{{b.title}}</h6>
+                    <span class="book-author">  {{b.author.author_name}}</span><br>
+                    <small class="text-muted book-genre" v-for="(g, index) in b.genres" v-bind:key="g.id">
+                      <em class="me-1">{{g.genre_name}}
+                        <template v-if="index !== (b.genres.length -1)">,</template>
+                      </em>
+                    </small>
+                  </div>
                 </div>
-              </div>
-            </div>
+                </div>
+
           </transition-group>
         </div>
       </div>

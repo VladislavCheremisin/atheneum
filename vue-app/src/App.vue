@@ -2,7 +2,7 @@
   <HeaderGlobal />
 
   <div>
-    <router-view @success="success" @error="error" @warning="warning" />
+    <router-view :key="componentKey" @success="success" @error="error" @warning="warning" @forceUpdate="forceUpdate" />
   </div>
   <FooterGlobal />
 
@@ -33,6 +33,7 @@ name:'App',
     return {
       store,
       ready: false,
+      componentKey: 0,
     }
   },
   beforeMount() {
@@ -70,6 +71,9 @@ name:'App',
         type: 'warning',
         text: msg,
       })
+    },
+    forceUpdate() {
+      this.componentKey += 1;
     }
   }
 }

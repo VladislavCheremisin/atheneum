@@ -30,16 +30,16 @@
 
 <script>
 import Security from "./security.js";
-import books from "@/components/Books";
 
 export default {
+  name:'BookAdmin',
   data() {
     return {
       books: {},
       ready: false,
     }
   },
-  activated() {
+  mounted() {
     Security.requireToken();
 
     fetch(process.env.VUE_APP_API_URL + "/books")
@@ -52,9 +52,6 @@ export default {
             this.ready = true;
           }
         })
-  },
-  deactivated() {
-    this.ready = false;
   }
 }
 </script>

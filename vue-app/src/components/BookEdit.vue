@@ -14,6 +14,7 @@
 import Security from "./security.js";
 
 export default {
+  name: "BookEdit",
   beforeMount() {
     Security.requireToken();
   }

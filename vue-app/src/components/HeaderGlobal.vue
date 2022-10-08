@@ -57,6 +57,7 @@ import router from "./../router/index.js";
 import Security from "./security.js";
 
 export default {
+  name: "HeaderGlobal",
   data() {
     return {
       store,

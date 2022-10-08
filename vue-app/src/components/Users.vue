@@ -55,6 +55,7 @@ function sleep(ms) {
 }
 
 export default {
+  name: "Users",
   data() {
     return {
       users:[],

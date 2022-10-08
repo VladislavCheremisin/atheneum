@@ -24,22 +24,22 @@ const routes = [
     },
     {
         path: '/book',
-        name: "book",
+        name: "Book",
         component: Book,
     },
     {
         path: '/books',
-        name: "books",
+        name: "Books",
         component: Books,
     },
     {
         path: '/books/:bookName',
-        name: "book",
+        name: "Book",
         component: Book,
     },
     {
         path: '/admin/books',
-        name: "booksAdmin",
+        name: "BooksAdmin",
         component: BooksAdmin,
     },
     {

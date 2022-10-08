@@ -387,4 +387,40 @@ func (b *Book) DeleteByID(id int) error {
 	return nil
 }
 
+func (b *Author) All() ([]*Author, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
 
+	query := `select id, author_name, created_at, updated_at from authors order by author_name`
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var authors []*Author
+
+	for rows.Next() {
+		var author Author
+		err := rows.Scan(
+			&author.ID,
+			&author.AuthorName,
+			&author.CreatedAt,
+			&author.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		// get authors
+		if err != nil {
+			return nil, err
+		}
+		//author.ID = b.ID
+		//author.AuthorName = b.AuthorName
+		//author.CreatedAt = b.CreatedAt
+		//author.UpdatedAt = b.UpdatedAt
+		authors = append(authors, &author)
+	}
+
+	return authors, nil
+}

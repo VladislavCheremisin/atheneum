@@ -44,18 +44,6 @@ func (b *Book) GetAll() ([]*Book, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	// if we have params, we are limiting by genre,
-	// so build the where clause
-	//where := ""
-	//if len(genreIDs) > 0 {
-	//	var IDs []string
-	//	for _, x := range genreIDs {
-	//		IDs = append(IDs, strconv.Itoa(x))
-	//	}
-	//	where = fmt.Sprintf("where b.id in (%s)", strings.Join(IDs, ","))
-	//}
-	//
-	//// (select array_to_string(array_agg(genre_id), ',') from books_genres where book_id = b.id)
 	query := `select b.id, b.title, b.author_id, b.publication_year, b.slug, b.description, b.created_at, b.updated_at,
             a.id, a.author_name, a.created_at, a.updated_at
             from books b
@@ -412,13 +400,6 @@ func (b *Author) All() ([]*Author, error) {
 		}
 
 		// get authors
-		if err != nil {
-			return nil, err
-		}
-		//author.ID = b.ID
-		//author.AuthorName = b.AuthorName
-		//author.CreatedAt = b.CreatedAt
-		//author.UpdatedAt = b.UpdatedAt
 		authors = append(authors, &author)
 	}
 

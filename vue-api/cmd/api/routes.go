@@ -25,8 +25,6 @@ func (app *application) routes() http.Handler {
 
 	mux.Post("/books", app.AllBooks)
 	mux.Get("/books", app.AllBooks)
-	mux.Post("/authors/all", app.AuthorsAll)
-	mux.Get("/authors/all", app.AuthorsAll)
 	mux.Get("/books/{slug}", app.OneBook)
 
 	mux.Post("/validate-token", app.ValidateToken)
@@ -41,7 +39,8 @@ func (app *application) routes() http.Handler {
 		mux.Post("/log-user-out/{id}", app.LogUserOutAndSetInactive)
 
 		//	admin book routes
-		//mux.Post("/authors/all", app.AuthorsAll)
+		mux.Post("/authors/all", app.AuthorsAll)
+		mux.Post("/books/save", app.EditBook)
 	})
 
 	//static files

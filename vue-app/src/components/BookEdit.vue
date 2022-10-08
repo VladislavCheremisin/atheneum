@@ -32,7 +32,7 @@
             label="Author"></select-input>
           <text-input
               v-model="book.publication_year"
-              type="text"
+              type="number"
               required="true"
               label="Publication Year"
               :value="book.publication_year"
@@ -93,7 +93,7 @@ export default {
     }
 
   //  get list of authors
-    fetch(process.env.VUE_APP_API_URL + "/authors/all", Security.requestOptions())
+    fetch(process.env.VUE_APP_API_URL + "/admin/authors/all", Security.requestOptions())
         .then((response) => response.json())
         .then((data) => {
               if (data.error) {
@@ -114,7 +114,7 @@ export default {
         id: 0,
         title: "",
         author_id: 0,
-        publication_year: 0,
+        publication_year: null,
         description: "",
         cover: "",
         slug: "",
@@ -138,12 +138,15 @@ export default {
       const payload = {
         id: this.book.id,
         title: this.book.title,
-        author_id: parseInt(this.book.publication_year),
+        author_id: parseInt(this.book.author_id, 10),
+        publication_year: parseInt(this.book.publication_year, 10),
         description: this.book.description,
         cover: this.book.cover,
-        slug:this.book.slug,
+        slug: this.book.slug,
         genres_ids: this.book.genres_ids,
       }
+
+      // console.log(payload);
 
       fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
           .then((response) => response.json())
@@ -169,9 +172,9 @@ export default {
       reader.onloadend = () => {
         const base64String = reader.result
             .replace("data:", "")
+            .replace("image/jpeg;base64,", "")
             .replace(/^,+,/,"");
         this.book.cover = base64String;
-        alert(base64String);
       }
       reader.readAsDataURL(file);
 

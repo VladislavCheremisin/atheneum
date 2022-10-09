@@ -283,7 +283,7 @@ func (b *Book) Insert(book Book) (int, error) {
 		book.Title,
 		book.AuthorID,
 		book.PublicationYear,
-		slugify.Slugify(b.Title),
+		slugify.Slugify(book.Title),
 		book.Description,
 		time.Now(),
 		time.Now(),

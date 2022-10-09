@@ -44,8 +44,8 @@
           <div class="mb-3">
             <label for="genres" class="form-label">Genres</label>
             <select ref="genres"
-                    class="form-select"
                     id="genres"
+                    class="form-select"
                     required
                     size="7"
                     v-model="this.book.genres_ids"
@@ -58,7 +58,7 @@
           <hr>
           <div class="float-start">
             <input type="submit" class="btn btn-primary me-2" value="Save" />
-            <router-link to="admin/books" class="btn btn-outline-secondary">Cancel</router-link>
+            <router-link to="/admin/books" class="btn btn-outline-secondary">Cancel</router-link>
           </div>
           <div class="float-end">
             <a v-if="this.book.id >0" href="javascript:void(0);" @click="confirmDelete(this.book.id)" class="btn btn-danger">
@@ -88,8 +88,21 @@ export default {
   //  get book for edit if id > 0
     if (this.$route.params.bookId > 0) {
     //  editing a book
-    } else {
-    //  adding a book
+      fetch(process.env.VUE_APP_API_URL + "/admin/books/" + this.$route.params.bookId, Security.requestOptions(""))
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              this.$emit('error', data.message);
+            } else {
+              this.book = data.data;
+              //TODO Selected
+              let genreArray = [];
+              for (let i = 0; i < this.book.genres.length; i++) {
+                genreArray.push(this.book.genres[i].id);
+              }
+              this.book.genre_ids = genreArray;
+            }
+          })
     }
 
   //  get list of authors
@@ -110,6 +123,7 @@ export default {
   },
   data() {
     return {
+      selected: '2',
       book: {
         id: 0,
         title: "",
@@ -145,8 +159,6 @@ export default {
         slug: this.book.slug,
         genres_ids: this.book.genres_ids,
       }
-
-      // console.log(payload);
 
       fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
           .then((response) => response.json())
@@ -184,11 +196,11 @@ export default {
         text: "Are you sure you want to delete this book?",
         submitText: "Delete",
         submitCallback: () => {
-          let payloud = {
+          let payload = {
             id: id,
           }
 
-          fetch(process.env.VUE_APP_IMAGE_URL + "/admin/books/delete", Security.requestOptions(payloud))
+          fetch(process.env.VUE_APP_IMAGE_URL + "/admin/books/delete", Security.requestOptions(payload))
               .then((response) => response.json())
               .then((data) => {
                 if (data.error) {
@@ -204,3 +216,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.book-cover {
+  max-width: 10em;
+}
+</style>

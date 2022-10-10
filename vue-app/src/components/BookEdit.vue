@@ -12,10 +12,21 @@
 
           <div class="mb-3">
             <label for="formFile" class="form-label">Cover Image</label>
-            <input v-if="this.book.id === 0" ref="coverInput" class="form-control" type="file" id="formFile"
-              required accept="image/jpg" @change="loadCoverImage">
-            <input v-else ref="coverInput" class="form-control" type="file" id="formFile"
-                   required accept="image/jpg" @change="loadCoverImage">
+            <input v-if="this.book.id === 0"
+                   ref="coverInput"
+                   class="form-control"
+                   type="file"
+                   id="formFile"
+                   required
+                   accept="image/jpg"
+                   @change="loadCoverImage">
+            <input v-else
+                   ref="coverInput"
+                   class="form-control"
+                   type="file"
+                   id="formFile"
+                   accept="image/jpg"
+                   @change="loadCoverImage">
           </div>
           <text-input
             v-model="book.title"
@@ -46,7 +57,6 @@
             <select ref="genres"
                     id="genres"
                     class="form-select"
-                    required
                     size="7"
                     v-model="this.book.genres_ids"
                     multiple>
@@ -95,6 +105,8 @@ export default {
               this.$emit('error', data.message);
             } else {
               this.book = data.data;
+              console.log("this.book", this.book);
+              console.log("this.book.genres", this.book.genres);
               //TODO Selected
               let genreArray = [];
               for (let i = 0; i < this.book.genres.length; i++) {
@@ -123,7 +135,6 @@ export default {
   },
   data() {
     return {
-      selected: '2',
       book: {
         id: 0,
         title: "",
@@ -159,6 +170,7 @@ export default {
         slug: this.book.slug,
         genres_ids: this.book.genres_ids,
       }
+      console.log("payload", payload);
 
       fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
           .then((response) => response.json())

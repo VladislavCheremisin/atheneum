@@ -351,6 +351,7 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 		PublicationYear int    `json:"publication_year"`
 		Description     string `json:"description"`
 		CoverBase64     string `json:"cover"`
+		BooksBase64     string `json:"book_file"`
 		GenreIDs        []int  `json:"genre_ids"`
 	}
 
@@ -380,6 +381,21 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 
 		//	write img to /static/cover
 		if err := os.WriteFile(fmt.Sprintf("%s/covers/%s.jpg", staticPath, book.Slug), decoded, 0666); err != nil {
+			app.errorJSON(w, err)
+			return
+		}
+	}
+
+	if len(requestPayload.BooksBase64) > 0 {
+		//	we have a cover
+		decoded := base64.(requestPayload.BooksBase64)
+		if err != nil {
+			app.errorJSON(w, err)
+			return
+		}
+
+		//	write book to /static/books
+		if err := os.WriteFile(fmt.Sprintf("%s/books/%s.fb2", staticPath, book.Slug), decoded, 0666); err != nil {
 			app.errorJSON(w, err)
 			return
 		}

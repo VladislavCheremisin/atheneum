@@ -15,6 +15,8 @@
           <p>
             {{book.description}}
           </p>
+          <hr>
+          <button @click="clickedDownload">Download Book</button>
         </template>
         <p v-else>Loading...</p>
       </div>
@@ -31,6 +33,27 @@ export default {
       ready: false,
     }
   },
+  methods: {
+    async clickedDownload(){
+      const fileName= `${this.imgPath}/books/${this.book.slug}.fb2`;
+
+      try {
+        const response = await fetch(fileName)
+        const blob = await response.blob();
+        const url = await URL.createObjectURL(blob)
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${this.book.slug}.fb2`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch(err) {
+        console.log({ err })
+      }
+    },
+  },
+
   mounted() {
     fetch(process.env.VUE_APP_API_URL + "/books/" + this.$route.params.bookName)
         .then((response) => response.json())

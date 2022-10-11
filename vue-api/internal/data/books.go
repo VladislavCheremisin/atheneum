@@ -21,6 +21,7 @@ type Book struct {
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 	GenreIDs        []int     `json:"genre_ids,omitempty"`
+	BookFile        string    `json:"book_file"`
 }
 
 // Author is the definition of a single author
@@ -187,6 +188,7 @@ func (b *Book) GetOneById(id int) (*Book, error) {
 
 	book.Genres = genres
 	book.GenreIDs = ids
+	book.BookFile = book.Slug
 
 	return &book, nil
 }
@@ -242,7 +244,7 @@ func (b *Book) genresForBook(id int) ([]Genre, []int, error) {
 
 	// get genres
 	var genres []Genre
-	var generIDs []int
+	var genreIDs []int
 	genreQuery := `select id, genre_name, created_at, updated_at from genres where id in (select genre_id 
                 from books_genres where book_id = $1) order by genre_name`
 
@@ -254,7 +256,6 @@ func (b *Book) genresForBook(id int) ([]Genre, []int, error) {
 
 	var genre Genre
 	for gRows.Next() {
-
 		err = gRows.Scan(
 			&genre.ID,
 			&genre.GenreName,
@@ -264,10 +265,10 @@ func (b *Book) genresForBook(id int) ([]Genre, []int, error) {
 			return nil, nil, err
 		}
 		genres = append(genres, genre)
-		generIDs = append(generIDs, genre.ID)
+		genreIDs = append(genreIDs, genre.ID)
 	}
 
-	return genres, generIDs, nil
+	return genres, genreIDs, nil
 }
 
 // Insert saves one book to the database
@@ -291,7 +292,6 @@ func (b *Book) Insert(book Book) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	//update genres using genre ids
 	if len(book.GenreIDs) > 0 {
 		stmt = `delete from books_genres where book_id = $1`
@@ -340,9 +340,9 @@ func (b *Book) Update() error {
 	}
 
 	// update genres using genre ids
-	if len(b.Genres) > 0 {
+	if len(b.GenreIDs) > 0 {
 		// delete existing genres
-		stmt = `delete from genres where book_id = $1`
+		stmt = `delete from books_genres where book_id = $1`
 		_, err := db.ExecContext(ctx, stmt, b.ID)
 		if err != nil {
 			return fmt.Errorf("book updated, but genres not: %s", err.Error())

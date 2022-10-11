@@ -7,11 +7,13 @@
       <hr>
       <div class="filters text-center mb-2">
         <span class="filter me-1" v-bind:class="{active: currentFilter === 0 }" v-on:click="setFilter(0)">ALL</span>
-        <span class="filter me-1" v-bind:class="{active: currentFilter === 7 }" v-on:click="setFilter(7)">CLASSIC</span>
-        <span class="filter me-1" v-bind:class="{active: currentFilter === 2 }" v-on:click="setFilter(2)">FANTASY</span>
-        <span class="filter me-1" v-bind:class="{active: currentFilter === 6 }" v-on:click="setFilter(6)">HORROR</span>
-        <span class="filter me-1" v-bind:class="{active: currentFilter === 4 }" v-on:click="setFilter(4)">THRILLER</span>
         <span class="filter me-1" v-bind:class="{active: currentFilter === 1 }" v-on:click="setFilter(1)">SCIENCE FICTION</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 2 }" v-on:click="setFilter(2)">FANTASY</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 3 }" v-on:click="setFilter(3)">Romance</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 4 }" v-on:click="setFilter(4)">THRILLER</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 5 }" v-on:click="setFilter(5)">Mystery</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 6 }" v-on:click="setFilter(6)">HORROR</span>
+        <span class="filter me-1" v-bind:class="{active: currentFilter === 7 }" v-on:click="setFilter(7)">CLASSIC</span>
       </div>
       <hr>
       <div>

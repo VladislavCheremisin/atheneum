@@ -437,8 +437,8 @@ func (app *application) BookByID(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-// SaveBook save book file
-func (app *application) SaveBook(w http.ResponseWriter, r *http.Request) {
+// SaveBookFile save book file
+func (app *application) SaveBookFile(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(200000) // grab the multipart form
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -476,4 +476,26 @@ func (app *application) SaveBook(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Files uploaded successfully : ")
 		fmt.Fprintf(w, files[i].Filename+"\n")
 	}
+}
+
+func (app *application) DeleteBook(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		ID           int    `json:"id"`
+		BookFileName string `json:"book_file_name"`
+	}
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	err = app.models.Book.DeleteByID(requestPayload.ID, requestPayload.BookFileName)
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: "Book deleted",
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
 }

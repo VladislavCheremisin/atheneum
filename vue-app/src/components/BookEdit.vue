@@ -4,18 +4,10 @@
       <div class="col">
         <h1 class="mt-3">Add/Edit Book</h1>
         <hr>
-<!--        <label>File-->
-<!--          <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>-->
-<!--        </label>-->
-<!--        <button v-on:click="submitFile()">Submit</button>-->
-<!--        <div v-if="this.book.book_file !=''" class="mb-3">-->
-<!--          <button @click="clickedDownload">Download Book</button>-->
-<!--        </div>-->
         <form-tag @bookEditEvent="submitHandler" name="bookForm" event="bookEditEvent">
-          <div v-if="this.book.slug !=''" class="mb-3">
+          <div v-if="this.book.slug !==''" class="mb-3">
             <img :src="`${this.imgPath}/covers/${this.book.slug}.jpg`" class="img-fluid img-thumbnail book-cover" alt="cover">
           </div>
-
           <div class="mb-3">
             <label for="formFileBook" class="form-label">Cover Books</label>
             <input v-if="this.book.id === 0"
@@ -97,11 +89,11 @@
             <router-link to="/admin/books" class="btn btn-outline-secondary">Cancel</router-link>
           </div>
           <div class="float-end">
-            <a v-if="this.book.id >0" href="javascript:void(0);" @click="confirmDelete(this.book.id)" class="btn btn-danger">
+            <a v-if="this.book.id >0" href="javascript:void(0);" @click="confirmDelete(this.book.id, this.book.book_file_name)" class="btn btn-danger">
               Delete
             </a>
           </div>
-
+          <div class="clearfix"></div>
         </form-tag>
       </div>
     </div>
@@ -202,7 +194,7 @@ export default {
       const selectedFile = this.$refs.file.files[0];
       const formData = new FormData();
       formData.append('book_file', selectedFile);
-      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/saveBook`, formData,  {
+      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/save-book-file`, formData,  {
         headers: {
           'Content-Type': 'multipart/form-data',
           "Authorization": "Bearer " + store.token
@@ -232,7 +224,6 @@ export default {
           .catch(error => {
             this.$emit('error', error)
           })
-
     },
     // Download book file
     async clickedDownload() {
@@ -268,37 +259,17 @@ export default {
       }
       reader.readAsDataURL(file);
     },
-    handleFileUpload() {
-      Security.requireToken();
-      const selectedFile = this.$refs.file.files[0];
-      const formData = new FormData();
-      formData.append('book_file', selectedFile);
-      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/saveBook`, formData,  {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          "Authorization": "Bearer " + store.token
-        }
-      } ).then((res) => {
-        res.data.file; // binary representation of the file
-        res.status; // HTTP status
-      })
-          .then(function () {
-            console.log('SUCCESS!!');
-          })
-          .catch(function () {
-            console.log('FAILURE!!');
-          });
-    },
-    confirmDelete(id) {
+    confirmDelete(id, book_file_name) {
       notie.confirm({
         text: "Are you sure you want to delete this book?",
         submitText: "Delete",
         submitCallback: () => {
           let payload = {
             id: id,
+            book_file_name: book_file_name,
           }
 
-          fetch(process.env.VUE_APP_IMAGE_URL + "/admin/books/delete/" + id, Security.requestOptions(payload))
+          fetch(`${process.env.VUE_APP_API_URL}/admin/books/delete`, Security.requestOptions(payload))
               .then((response) => response.json())
               .then((data) => {
                 if (data.error) {
@@ -313,7 +284,6 @@ export default {
     },
     saveFileName() {
       this.book.book_file_name = this.$refs.file.files[0].name
-      console.log(this.$refs.file.files[0].name)
     },
   }
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/mozillazg/go-slugify"
+	"os"
 	"time"
 )
 
@@ -367,11 +368,16 @@ func (b *Book) Update() error {
 }
 
 // DeleteByID deletes a book by id
-func (b *Book) DeleteByID(id int) error {
+func (b *Book) DeleteByID(id int, file string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
 	stmt := `delete from books where id = $1`
+	e := os.Remove("./static/books/" + file)
+	if e != nil {
+		return e
+
+	}
 	_, err := db.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err

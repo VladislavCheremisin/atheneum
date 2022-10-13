@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/mozillazg/go-slugify"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -344,6 +345,7 @@ func (app *application) AuthorsAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
+	app.infoLog.Println("r", r)
 	var requestPayload struct {
 		ID              int    `json:"id"`
 		Title           string `json:"title"`
@@ -351,9 +353,10 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 		PublicationYear int    `json:"publication_year"`
 		Description     string `json:"description"`
 		CoverBase64     string `json:"cover"`
-		BooksBase64     string `json:"book_file"`
+		BookFileName    string `json:"book_file_name"`
 		GenreIDs        []int  `json:"genre_ids"`
 	}
+	app.infoLog.Println("requestPayload", requestPayload)
 
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
@@ -367,9 +370,11 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 		AuthorID:        requestPayload.AuthorID,
 		PublicationYear: requestPayload.PublicationYear,
 		Description:     requestPayload.Description,
+		BookFileName:    requestPayload.BookFileName,
 		Slug:            slugify.Slugify(requestPayload.Title),
 		GenreIDs:        requestPayload.GenreIDs,
 	}
+	app.infoLog.Println("book", book)
 
 	if len(requestPayload.CoverBase64) > 0 {
 		//	we have a cover
@@ -386,21 +391,6 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if len(requestPayload.BooksBase64) > 0 {
-		//	we have a cover
-		decoded := base64.(requestPayload.BooksBase64)
-		if err != nil {
-			app.errorJSON(w, err)
-			return
-		}
-
-		//	write book to /static/books
-		if err := os.WriteFile(fmt.Sprintf("%s/books/%s.fb2", staticPath, book.Slug), decoded, 0666); err != nil {
-			app.errorJSON(w, err)
-			return
-		}
-	}
-
 	if book.ID == 0 {
 		//	adding Book
 		_, err := app.models.Book.Insert(book)
@@ -409,6 +399,7 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		app.infoLog.Println("book", book)
 		//	updating book
 		err := book.Update()
 		if err != nil {
@@ -421,7 +412,7 @@ func (app *application) EditBook(w http.ResponseWriter, r *http.Request) {
 		Error:   false,
 		Message: "Changes saved",
 	}
-
+	app.infoLog.Println("payload", payload)
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
@@ -444,4 +435,45 @@ func (app *application) BookByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// SaveBook save book file
+func (app *application) SaveBook(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(200000) // grab the multipart form
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	formdata := r.MultipartForm // ok, no problem so far, read the Form data
+
+	//get the *fileheaders
+	files := formdata.File["book_file"] // grab the filenames
+
+	for i, _ := range files { // loop through the files one by one
+		file, err := files[i].Open()
+		defer file.Close()
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+
+		out, err := os.Create("./static/books/" + files[i].Filename)
+
+		defer out.Close()
+		if err != nil {
+			fmt.Fprintf(w, "Unable to create the file for writing. Check your write access privilege")
+			return
+		}
+
+		_, err = io.Copy(out, file) // file not files[i] !
+
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+
+		fmt.Fprintf(w, "Files uploaded successfully : ")
+		fmt.Fprintf(w, files[i].Filename+"\n")
+	}
 }

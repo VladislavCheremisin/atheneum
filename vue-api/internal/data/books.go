@@ -21,7 +21,7 @@ type Book struct {
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 	GenreIDs        []int     `json:"genre_ids,omitempty"`
-	BookFile        string    `json:"book_file"`
+	BookFileName    string    `json:"book_file_name"`
 }
 
 // Author is the definition of a single author
@@ -153,7 +153,7 @@ func (b *Book) GetOneById(id int) (*Book, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select b.id, b.title, b.author_id, b.publication_year, b.slug, b.description, b.created_at, b.updated_at,
+	query := `select b.id, b.title, b.author_id, b.publication_year, b.slug, b.description, b.book_file_name, b.created_at, b.updated_at,
             a.id, a.author_name, a.created_at, a.updated_at
             from books b
             left join authors a on (b.author_id = a.id)
@@ -170,6 +170,7 @@ func (b *Book) GetOneById(id int) (*Book, error) {
 		&book.PublicationYear,
 		&book.Slug,
 		&book.Description,
+		&book.BookFileName,
 		&book.CreatedAt,
 		&book.UpdatedAt,
 		&book.Author.ID,
@@ -188,7 +189,6 @@ func (b *Book) GetOneById(id int) (*Book, error) {
 
 	book.Genres = genres
 	book.GenreIDs = ids
-	book.BookFile = book.Slug
 
 	return &book, nil
 }
@@ -198,7 +198,7 @@ func (b *Book) GetOneBySlug(slug string) (*Book, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select b.id, b.title, b.author_id, b.publication_year, b.slug, b.description, b.created_at, b.updated_at,
+	query := `select b.id, b.title, b.author_id, b.publication_year, b.slug, b.description, b.book_file_name, b.created_at, b.updated_at,
             a.id, a.author_name, a.created_at, a.updated_at
             from books b
             left join authors a on (b.author_id = a.id)
@@ -215,6 +215,7 @@ func (b *Book) GetOneBySlug(slug string) (*Book, error) {
 		&book.PublicationYear,
 		&book.Slug,
 		&book.Description,
+		&book.BookFileName,
 		&book.CreatedAt,
 		&book.UpdatedAt,
 		&book.Author.ID,
@@ -276,8 +277,8 @@ func (b *Book) Insert(book Book) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	stmt := `insert into books (title, author_id, publication_year, slug, description, created_at, updated_at)
-            values ($1, $2, $3, $4, $5, $6, $7) returning id`
+	stmt := `insert into books (title, author_id, publication_year, slug, description, book_file_name, created_at, updated_at)
+            values ($1, $2, $3, $4, $5, $6, $7, $8) returning id`
 
 	var newID int
 	err := db.QueryRowContext(ctx, stmt,
@@ -286,6 +287,7 @@ func (b *Book) Insert(book Book) (int, error) {
 		book.PublicationYear,
 		slugify.Slugify(book.Title),
 		book.Description,
+		book.BookFileName,
 		time.Now(),
 		time.Now(),
 	).Scan(&newID)
@@ -324,8 +326,9 @@ func (b *Book) Update() error {
         publication_year = $3,
         slug = $4,
         description = $5,
-        updated_at = $6
-        where id = $7`
+        book_file_name = $6,
+        updated_at = $7
+        where id = $8`
 
 	_, err := db.ExecContext(ctx, stmt,
 		b.Title,
@@ -333,6 +336,7 @@ func (b *Book) Update() error {
 		b.PublicationYear,
 		slugify.Slugify(b.Title),
 		b.Description,
+		b.BookFileName,
 		time.Now(),
 		b.ID)
 	if err != nil {

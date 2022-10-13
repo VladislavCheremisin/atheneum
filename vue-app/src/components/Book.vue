@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     async clickedDownload(){
-      const fileName= `${this.imgPath}/books/${this.book.slug}.fb2`;
+      const fileName= `${this.imgPath}/books/${this.book.book_file_name}`;
 
       try {
         const response = await fetch(fileName)
@@ -44,7 +44,7 @@ export default {
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${this.book.slug}.fb2`;
+        a.download = `${this.book.book_file_name}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

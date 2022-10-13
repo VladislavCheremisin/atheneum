@@ -4,35 +4,34 @@
       <div class="col">
         <h1 class="mt-3">Add/Edit Book</h1>
         <hr>
-        <label>File
-          <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
-        </label>
-        <button v-on:click="submitFile()">Submit</button>
-        <div v-if="this.book.book_file !=''" class="mb-3">
-          <button @click="clickedDownload">Download Book</button>
-        </div>
+<!--        <label>File-->
+<!--          <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>-->
+<!--        </label>-->
+<!--        <button v-on:click="submitFile()">Submit</button>-->
+<!--        <div v-if="this.book.book_file !=''" class="mb-3">-->
+<!--          <button @click="clickedDownload">Download Book</button>-->
+<!--        </div>-->
         <form-tag @bookEditEvent="submitHandler" name="bookForm" event="bookEditEvent">
           <div v-if="this.book.slug !=''" class="mb-3">
             <img :src="`${this.imgPath}/covers/${this.book.slug}.jpg`" class="img-fluid img-thumbnail book-cover" alt="cover">
           </div>
 
           <div class="mb-3">
-            <label for="formFile" class="form-label">Cover Books</label>
+            <label for="formFileBook" class="form-label">Cover Books</label>
             <input v-if="this.book.id === 0"
-                   ref="booksInput"
+                   ref="file"
                    class="form-control"
                    type="file"
-                   id="formFile"
-                   required
-
-                   @change="loadCoverBooks">
+                   id="formFileBook"
+                   @change="saveFileName"
+                   required>
             <input v-else
-                   ref="booksInput"
+                   ref="file"
                    class="form-control"
                    type="file"
-                   id="formFile"
-
-                   @change="loadCoverBooks">
+                   id="formFileBook"
+                   @change="saveFileName"
+                   >
           </div>
 
           <div class="mb-3">
@@ -117,6 +116,7 @@ import SelectInput from "@/components/forms/SelectInput";
 import notie from 'notie'
 import router from "@/router";
 import axios from "axios"
+import {store} from "@/components/store";
 
 export default {
   name: "BookEdit",
@@ -168,13 +168,12 @@ export default {
         description: "",
         cover: "",
         slug: "",
-        book_file: "",
+        book_file_name: "",
         genres: [],
         genre_ids: [],
       },
       authors: [],
       imgPath: process.env.VUE_APP_IMAGE_URL,
-      booksPath: process.env.VUE_APP_BOOKS_URL,
       genres: [
         {value: 1, text: "Science Fiction"},
         {value: 2, text: "Fantasy"},
@@ -196,10 +195,28 @@ export default {
         description: this.book.description,
         cover: this.book.cover,
         slug: this.book.slug,
-        book_file: this.book.book_file,
+        book_file_name: this.book.book_file_name,
         genre_ids: this.book.genre_ids,
       }
-      console.log("payload.book_file ", payload.book_file)
+
+      const selectedFile = this.$refs.file.files[0];
+      const formData = new FormData();
+      formData.append('book_file', selectedFile);
+      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/saveBook`, formData,  {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          "Authorization": "Bearer " + store.token
+        }
+      } ).then((res) => {
+        res.data.file; // binary representation of the file
+        res.status; // HTTP status
+      })
+          .then(function () {
+            console.log('SUCCESS!!');
+          })
+          .catch(function () {
+            console.log('FAILURE!!');
+          });
 
       fetch(`${process.env.VUE_APP_API_URL}/admin/books/save`, Security.requestOptions(payload))
           .then((response) => response.json())
@@ -217,6 +234,7 @@ export default {
           })
 
     },
+    // Download book file
     async clickedDownload() {
       const fileName = `${this.imgPath}/books/${this.book.book_file}.fb2`;
 
@@ -250,53 +268,26 @@ export default {
       }
       reader.readAsDataURL(file);
     },
-    loadCoverBooks() {
-      this.book.book_file = this.$refs.booksInput.files[0];
-      console.log("this.book.book_file ", this.book.book_file)
-      // //encode the file
-      // const reader = new FileReader();
-      // // reader.onloadend = () => {
-      // //   const base64String = reader.result
-      // //       // .replace("data:", "")
-      // //       // .replace("application/octet-stream;base64,", "")
-      // //       // .replace(/^,+,/,"");
-      // //   this.book.book_file = base64String;
-      // // }
-      // reader.readAsDataURL(file);
-    },
     handleFileUpload() {
-      this.file = this.$refs.file.files[0];
-    },
-    submitFile() {
-      const payload = {
-        id: this.book.id,
-        title: this.book.title,
-        author_id: parseInt(this.book.author_id, 10),
-        publication_year: parseInt(this.book.publication_year, 10),
-        description: this.book.description,
-        cover: this.book.cover,
-        slug: this.book.slug,
-        book_file: this.book.book_file,
-        genre_ids: this.book.genre_ids,
-      }
       Security.requireToken();
-      Security.requestOptions(payload)
-      let formData = new FormData();
-      formData.append('book_file', this.book.book_file);
-      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/save`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-      ).then(function () {
-        console.log('SUCCESS!!');
+      const selectedFile = this.$refs.file.files[0];
+      const formData = new FormData();
+      formData.append('book_file', selectedFile);
+      axios.post(`${process.env.VUE_APP_API_URL}/admin/books/saveBook`, formData,  {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          "Authorization": "Bearer " + store.token
+        }
+      } ).then((res) => {
+        res.data.file; // binary representation of the file
+        res.status; // HTTP status
       })
+          .then(function () {
+            console.log('SUCCESS!!');
+          })
           .catch(function () {
             console.log('FAILURE!!');
           });
-
     },
     confirmDelete(id) {
       notie.confirm({
@@ -319,7 +310,11 @@ export default {
               })
         }
       })
-    }
+    },
+    saveFileName() {
+      this.book.book_file_name = this.$refs.file.files[0].name
+      console.log(this.$refs.file.files[0].name)
+    },
   }
 }
 

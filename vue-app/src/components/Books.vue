@@ -64,7 +64,7 @@ export default {
     fetch(process.env.VUE_APP_API_URL + "/books")
         .then((response) => response.json())
         .then((response) => {
-          if (this.error) {
+          if (response.error) {
             this.$emit('error', response.message);
           } else {
             this.books = response.data.books;
